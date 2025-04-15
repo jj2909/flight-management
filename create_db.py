@@ -1,6 +1,5 @@
-import sqlite3
 from dataclasses import Field
-from base.connection import DATABASE_FILE
+from base.connection import db_connection
 from base.logger import logger
 import inspect
 from typing import Type, Iterable
@@ -27,8 +26,7 @@ class DB:
 
     @classmethod
     def intialise_all(cls):
-        with sqlite3.connect(DATABASE_FILE) as connection:
-            connection.execute("PRAGMA foreign_keys = ON")
+        with db_connection() as connection:
             for k, v in DB.__SUBCLASSES__.items():
                 logger.info(f"{k} creating key automatically")
                 fields = DB.get_class_fields(v)
@@ -57,13 +55,13 @@ class DB:
                 connection.execute(create_table)
 
     def drop_table(cls) -> None:
-        with sqlite3.connect(DATABASE_FILE) as connection:
+        with db_connection() as connection:
             drop_table = f"DROP TABLE IF EXISTS {cls.__name__}"
             logger.info(f"running sql {drop_table}")
             connection.execute(drop_table)
 
     def drop_all() -> None:
-        with sqlite3.connect(DATABASE_FILE) as connection:
+        with db_connection() as connection:
             for k, _ in DB.__SUBCLASSES__.items():
                 drop_table = f"DROP TABLE IF EXISTS {k}"
                 logger.info(f"running sql {drop_table}")
@@ -78,7 +76,7 @@ class DB:
             f"INSERT INTO {self.__class__.__name__}({names_key}) VALUES ({questions})"
         )
 
-        with sqlite3.connect(DATABASE_FILE) as connection:
+        with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"running following insert query {insert_query}")
             cursor.execute(insert_query, tuple([getattr(self, name) for name in names]))
@@ -102,8 +100,7 @@ class DB:
 
     @classmethod
     def find_all(cls) -> list[dict]:
-        with sqlite3.connect(DATABASE_FILE) as connection:
-            connection.row_factory = sqlite3.Row
+        with db_connection() as connection:
             cursor = connection.cursor()
             rows = cursor.execute(f"SELECT * FROM {cls.__name__}")
             # return [cls(**row) for row in rows]
@@ -119,7 +116,7 @@ class DB:
                 for row in cursor.fetchall()
             ]
 
-        with sqlite3.connect(DATABASE_FILE) as connection:
+        with db_connection() as connection:
             select_clauses = get_columns_with_alias(
                 cls.__name__, cls.__name__, connection
             )
@@ -140,8 +137,7 @@ class DB:
             f"SELECT {', '.join(select_clauses)} FROM {cls.__name__} {' '.join(joins)}"
         )
 
-        with sqlite3.connect(DATABASE_FILE) as connection:
-            connection.row_factory = sqlite3.Row
+        with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"running find_all_with_details query: {query}")
             rows = cursor.execute(query).fetchall()
@@ -151,8 +147,7 @@ class DB:
     def find_by_id(cls, ids: list[int], key: str = None):
         questions = ", ".join(["?"] * len(ids))
         query = f"SELECT * FROM {cls.__name__} WHERE {key if key else cls.primary_key} IN ({questions})"
-        with sqlite3.connect(DATABASE_FILE) as connection:
-            connection.row_factory = sqlite3.Row
+        with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"running find_by_id query: {query} with ids {ids}")
             rows = cursor.execute(query, ids)
@@ -162,7 +157,7 @@ class DB:
     def delete_by_id(cls, ids: list[int], key: str = None) -> None:
         questions = ", ".join(["?"] * len(ids))
         query = f"DELETE FROM {cls.__name__} WHERE {key if key else cls.primary_key} IN ({questions})"
-        with sqlite3.connect(DATABASE_FILE) as connection:
+        with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"running delete query: {query} with ids {ids}")
             cursor.execute(query, ids)
@@ -181,7 +176,7 @@ class DB:
         values.append(data[key])
 
         query = f"UPDATE {cls.__name__} SET {questions} WHERE {key} = ?"
-        with sqlite3.connect(DATABASE_FILE) as connection:
+        with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"running update query: {query} with values {values}")
             cursor.execute(query, values)

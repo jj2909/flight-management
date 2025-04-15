@@ -65,7 +65,7 @@ class Flights(DB, primary_key="flight_id"):
 
 
 def initiate() -> None:
-    DB.drop_all()
+    # DB.drop_all()
     DB.intialise_all()
 
     with open("data/aircrafts.json") as f:
