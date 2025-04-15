@@ -1,0 +1,67 @@
+[
+    {
+        "code": "DEN",
+        "name": "Denver International Airport",
+        "country": "United States"
+    },
+    {
+        "code": "MCO",
+        "name": "Orlando International Airport",
+        "country": "United States"
+    },
+    {
+        "code": "BOG",
+        "name": "Bogota El Dorado International Airport",
+        "country": "Colombia"
+    },
+    {
+        "code": "TFS",
+        "name": "Tenerife South Airport",
+        "country": "Spain"
+    },
+    {
+        "code": "IST",
+        "name": "Istanbul Airport",
+        "country": "Turkey"
+    },
+    {
+        "code": "BKK",
+        "name": "Suvarnabhumi Airport",
+        "country": "Thailand"
+    },
+    {
+        "code": "YEG",
+        "name": "YEG Edmonton International Airport",
+        "country": "Canada"
+    },
+    {
+        "code": "AMS",
+        "name": "Amsterdam Airport Schiphol",
+        "country": "Netherlands"
+    },
+    {
+        "code": "LHR",
+        "name": "Heathrow Airport",
+        "country": "United Kingdom"
+    },
+    {
+        "code": "SIN",
+        "name": "Singapore Changi Airport",
+        "country": "Singapore"
+    },
+    {
+        "code": "ICN",
+        "name": "Seoul Incheon International Airport",
+        "country": "South Korea"
+    },
+    {
+        "code": "CGK",
+        "name": "Soekarno–Hatta International Airport",
+        "country": "Indonesia"
+    },
+    {
+        "code": "PKX",
+        "name": "Beijing Daxing International Airport",
+        "country": "China"
+    }
+]

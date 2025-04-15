@@ -1,0 +1,42 @@
+[
+    {
+        "departure_time": "",
+        "arrival_time": "",
+        "pilot_id": 1,
+        "departure_id": "DEN",
+        "destination_id": "BKK",
+        "aircraft_id": "OK-TSU"
+    },
+    {
+        "departure_time": "",
+        "arrival_time": "",
+        "pilot_id": 2,
+        "departure_id": "MCO",
+        "destination_id": "YEG",
+        "aircraft_id": "F-HOLX"
+    },
+    {
+        "departure_time": "",
+        "arrival_time": "",
+        "pilot_id": 5,
+        "departure_id": "DEN",
+        "destination_id": "BOG",
+        "aircraft_id": "EI-GXL"
+    },
+    {
+        "departure_time": "",
+        "arrival_time": "",
+        "pilot_id": 4,
+        "departure_id": "TFS",
+        "destination_id": "AMS",
+        "aircraft_id": "G-AZFM"
+    },
+    {
+        "departure_time": "",
+        "arrival_time": "",
+        "pilot_id": 3,
+        "departure_id": "IST",
+        "destination_id": "TFS",
+        "aircraft_id": "C-GCFK"
+    }
+]
