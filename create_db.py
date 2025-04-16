@@ -147,7 +147,6 @@ class DB:
             return [dict(row) for row in rows]
 
     def _build_condition_clause(conditions: list[dict] | None) -> tuple[str, list]:
-
         if not conditions:
             return "", []
 
@@ -226,22 +225,3 @@ class DB:
             cursor.execute(query, values)
             connection.commit()
             return cursor.rowcount
-
-    @classmethod
-    def update_by_id(cls, data: dict, key: str = None) -> None:
-        if not key:
-            key = cls.primary_key
-
-        if key not in data:
-            raise ValueError(f"Key {key} missing")
-
-        questions = ", ".join([f"{col} = ?" for col in data if col != key])
-        values = [v for col, v in data.items() if col != key]
-        values.append(data[key])
-
-        query = f"UPDATE {cls.__name__} SET {questions} WHERE {key} = ?"
-        with db_connection() as connection:
-            cursor = connection.cursor()
-            logger.info(f"running update query: {query} with values {values}")
-            cursor.execute(query, values)
-            connection.commit()

@@ -21,40 +21,35 @@ def search_values(table: type[DB]) -> None:
 def add_values(table: type[DB]) -> None:
     fields = table.get_class_fields(table)
     names = [field.name for field in fields]
-    types = [field.type.__name__ for field in fields]
-    __TYPE_MAP = {
-        "int": int,
-        "str": str,
-        "NoneType": lambda x: None,
-        "float": float,
-    }
+    names = ", ".join(names)
 
-    print(f"Columns to input: {names}")
+    print(f"Columns: {names}")
     values = input(
         f"Enter the entry you would like to add with values separated by commas: "
     )
     values = [v.strip() for v in values.split(",")]
-    values = [__TYPE_MAP[typ](val) for typ, val in zip(types, values)]
-
     table(*values).insert()
     print("> Successfully added entry")
 
 
 def update_values(table: type[DB]) -> None:
-    fields = table.get_class_fields(table)
-    names = [field.name for field in fields]
-    names.pop(0)
-    key_input = input(f"Which {table.primary_key} do you want to update? (e.g. ???): ")
-    print(f"Columns available: {names}")
-    updated_data = input(
-        f"{key_input}: enter the updated column:value seperated by a comma (e.g. {names[0]}:???) "
-    )
 
-    updated_data = [x.strip().split(":") for x in updated_data.split(",")]
-    updated_data.append([table.primary_key, key_input])
-    table.update_by_id(dict(updated_data))
-
-    print("row updated")
+    while True:
+        to_filter = (
+            input(f"Do you want apply a filter to update? (Y/N): ").strip().upper()
+        )
+        if to_filter == "Y":
+            conditions = _get_conditions(table)
+            break
+        if to_filter == "N":
+            break
+        else:
+            continue
+    
+    col = input("What column do you want to update? : ")
+    value = input("What is the new value? : ")
+    rows = table.update({col: value}, conditions if conditions else None)
+    print(f"Number of rows updated: {rows}")
 
 
 def delete_values(table: type[DB]) -> None:
@@ -65,8 +60,8 @@ def delete_values(table: type[DB]) -> None:
 
         if to_filter == "Y":
             conditions = _get_conditions(table)
-            count = table.delete(conditions)
-            print(f"Number of rows deleted {count}.")
+            rows = table.delete(conditions)
+            print(f"Number of rows deleted {rows}.")
             break
         if to_filter == "N":
             response = (
