@@ -60,7 +60,7 @@ def table_options(table: type[DB]) -> None:
     submenu = {
         "1": {
             "name": "View table",
-            "function": lambda t=table: dict_to_table(t.find_all()),
+            "function": lambda t=table: dict_to_table(t.find()),
         },
         "2": {
             "name": "View table with details",

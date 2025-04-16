@@ -1,8 +1,9 @@
 from dataclasses import Field
+import sqlite3
 from base.connection import db_connection
 from base.logger import logger
 import inspect
-from typing import Type, Iterable
+from typing import Any, Type, Iterable
 
 
 class DB:
@@ -44,7 +45,7 @@ class DB:
                         )
                     if field.metadata.get("foreign_key"):
                         fk_fields.append(
-                            f'FOREIGN KEY ({field.name}) REFERENCES {field.metadata.get("foreign_key")["table"]}({field.metadata.get("foreign_key")["column"]})'
+                            f'FOREIGN KEY ({field.name}) REFERENCES {field.metadata.get("foreign_key")["table"]}({field.metadata.get("foreign_key")["column"]}) ON DELETE CASCADE'  # TODO: MAKE ON DELETE A SETTING
                         )
 
                 if fk_fields:
@@ -99,14 +100,6 @@ class DB:
         return result
 
     @classmethod
-    def find_all(cls) -> list[dict]:
-        with db_connection() as connection:
-            cursor = connection.cursor()
-            rows = cursor.execute(f"SELECT * FROM {cls.__name__}")
-            # return [cls(**row) for row in rows]
-            return [dict(row) for row in rows]
-
-    @classmethod
     def find_all_with_details(cls) -> list[dict]:
 
         def get_columns_with_alias(table: str, alias: str, connection) -> list[str]:
@@ -153,15 +146,86 @@ class DB:
             rows = cursor.execute(query, ids)
             return [dict(row) for row in rows]
 
+    def _build_condition_clause(conditions: list[dict] | None) -> tuple[str, list]:
+
+        if not conditions:
+            return "", []
+
+        VALID_OPERATORS = ["=", "!=", ">", "<", "IN"]
+        clauses = []
+        values = []
+
+        for c in conditions:
+            column, operator, value = c["column"], c["operator"], c["value"]
+
+            if operator not in VALID_OPERATORS:
+                raise ValueError(
+                    f"Not a valid operator. Valid operators: {VALID_OPERATORS}"
+                )
+
+            if operator == "IN":
+                questions = ", ".join(["?"] * len(value))
+                clauses.append(f"{column} IN ({questions})")
+                values.extend(value)
+
+            else:
+                clauses.append(f"{column} {operator} ?")
+                values.append(value)
+
+        where_clause = " AND ".join(clauses)
+        return where_clause, values
+
     @classmethod
-    def delete_by_id(cls, ids: list[int], key: str = None) -> None:
-        questions = ", ".join(["?"] * len(ids))
-        query = f"DELETE FROM {cls.__name__} WHERE {key if key else cls.primary_key} IN ({questions})"
+    def find(cls, conditions: list[dict] = None):
+        query = f"SELECT * FROM {cls.__name__}"
+        where_clause, values = cls._build_condition_clause(conditions)
+
+        if where_clause:
+            query += f" WHERE {where_clause}"
+
         with db_connection() as connection:
             cursor = connection.cursor()
-            logger.info(f"running delete query: {query} with ids {ids}")
-            cursor.execute(query, ids)
+            logger.info(f"Running SELECT query: {query} with values {values}")
+            rows = cursor.execute(query, values)
+            # return [cls(**row) for row in rows]
+            return [dict(row) for row in rows]
+
+    @classmethod
+    def delete(cls, conditions: list[dict] = None) -> int:
+        query = f"DELETE FROM {cls.__name__}"
+        where_clause, values = cls._build_condition_clause(conditions)
+
+        if where_clause:
+            query += f" WHERE {where_clause}"
+
+        with db_connection() as connection:
+            cursor = connection.cursor()
+            logger.info(f"Running DELETE query: {query} with values {values}")
+            try:
+                cursor.execute(query, values)
+                return cursor.rowcount
+            except sqlite3.IntegrityError:
+                print("Cannot delete: records have relations.")
+
+    @classmethod
+    def update(cls, update_data: dict, conditions: list[dict] = None) -> int:
+
+        questions = ", ".join([f"{col} = ?" for col in update_data])
+        values = list(update_data.values())
+
+        where_clause, where_values = cls._build_condition_clause(conditions)
+
+        query = f"UPDATE {cls.__name__} SET {questions}"
+        if where_clause:
+            query += f" WHERE {where_clause}"
+            values += where_values
+
+        with db_connection() as connection:
+            cursor = connection.cursor()
+            logger.info(f"Running UPDATE query: {query} with values {values}")
+            cursor.execute(query, values)
             connection.commit()
+            return cursor.rowcount
 
     @classmethod
     def update_by_id(cls, data: dict, key: str = None) -> None:

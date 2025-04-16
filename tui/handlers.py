@@ -1,24 +1,21 @@
 from tui.utils import dict_to_table
 from create_db import DB
 
-def search_values(table: type[DB]) -> None:
+
+def _get_conditions(table: type[DB]) -> list[dict]:
     fields = table.get_class_fields(table)
     names = [field.name for field in fields]
-    while True:
-        print(f"Columns available: {names}")
-        key_input = input(f"Which column do you want to SEARCH on (e.g. {names[0]}): ")
-        if key_input in names:
-            filter_input = input(
-                f"What list of values do you want to filter column {key_input} (e.g. 1,2,3): "
-            )
-            dict_to_table(
-                table.find_by_id(
-                    [x.strip() for x in filter_input.split(",")], key=key_input
-                )
-            )
-            break
-        else:
-            print(f"> Not a valid column")
+    print(f"Columns available: {names}")
+    col = input("What column do you want to filter by?: ")
+    operator = input("On what operator [=, !=, <, >, IN]: ")
+    print(f"{col} {operator} ?")
+    value = input("What value?: ")
+    return [{"column": col, "operator": operator, "value": value}]
+
+
+def search_values(table: type[DB]) -> None:
+    conditions = _get_conditions(table)
+    dict_to_table(table.find(conditions))
 
 
 def add_values(table: type[DB]) -> None:
@@ -61,25 +58,26 @@ def update_values(table: type[DB]) -> None:
 
 
 def delete_values(table: type[DB]) -> None:
-    fields = table.get_class_fields(table)
-    names = [field.name for field in fields]
     while True:
-        print(f"Columns available: {names}")
-        key_input = input(
-            f"Which column do you want to DELETE from (e.g. {names[0]}): "
+        to_filter = (
+            input(f"Do you want apply a filter to delete? (Y/N): ").strip().upper()
         )
-        if key_input in names:
-            filter_input = input(
-                f"What list of values do you want to DELETE in column {key_input} (e.g. 1,2,3): "
-            )
 
-            table.delete_by_id(
-                [x.strip() for x in filter_input.split(",")], key=key_input
-            )
-
-            print("TODO: number of rows deleted: ??")
-
+        if to_filter == "Y":
+            conditions = _get_conditions(table)
+            count = table.delete(conditions)
+            print(f"Number of rows deleted {count}.")
             break
-        else:
-            print(f"> Not a valid column")
-
+        if to_filter == "N":
+            response = (
+                input(
+                    f"Are you sure you want to delete all records in {table.__name__}? (Y/N): "
+                )
+                .strip()
+                .upper()
+            )
+            if response == "Y":
+                print(f"Deleting all records in {table.__name__}...")
+                break
+            else:
+                continue
