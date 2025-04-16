@@ -1,6 +1,6 @@
 from typing import Optional
 import json
-from create_db import DB
+from app.models.base_model import DB
 from dataclasses import dataclass, field
 
 
@@ -65,21 +65,21 @@ class Flights(DB, primary_key="flight_id"):
 
 
 def initiate() -> None:
-    # DB.drop_all()
+    DB.drop_all()
     DB.intialise_all()
 
-    with open("data/aircrafts.json") as f:
+    with open("app/data/aircrafts.json") as f:
         aircraft_data = json.load(f)
     [Aircrafts(**data).insert() for data in aircraft_data]
 
-    with open("data/airports.json") as f:
+    with open("app/data/airports.json") as f:
         airport_data = json.load(f)
     [Airports(**data).insert() for data in airport_data]
 
-    with open("data/pilots.json") as f:
+    with open("app/data/pilots.json") as f:
         pilot_data = json.load(f)
     [Pilots(**data).insert() for data in pilot_data]
 
-    with open("data/flights.json") as f:
+    with open("app/data/flights.json") as f:
         flight_data = json.load(f)
     [Flights(**data).insert() for data in flight_data]

@@ -1,7 +1,7 @@
-from create_db import DB
+from app.models.base_model import DB
 import sys
-from tui.utils import dict_to_table
-from tui.handlers import search_values, add_values, delete_values, update_values
+from app.tui.utils import dict_to_table
+from app.tui.handlers import search_values, add_values, delete_values, update_values
 
 
 class FlightMangement:

@@ -2,7 +2,7 @@ from pathlib import Path
 from contextlib import contextmanager
 import sqlite3
 
-DATABASE_FILE = Path(__file__).parent.parent / "database.db"
+DATABASE_FILE = Path(__file__).parent.parent.parent / "database.db"
 
 @contextmanager
 def db_connection():

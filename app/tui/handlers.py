@@ -1,5 +1,5 @@
-from tui.utils import dict_to_table
-from create_db import DB
+from app.tui.utils import dict_to_table
+from app.models.base_model import DB
 
 
 def _get_conditions(table: type[DB]) -> list[dict]:
@@ -11,6 +11,24 @@ def _get_conditions(table: type[DB]) -> list[dict]:
     print(f"{col} {operator} ?")
     value = input("What value?: ")
     return [{"column": col, "operator": operator, "value": value}]
+
+
+def _get_column(table: type[DB]) -> str:
+    columns = list(table.get_class_fields(table))
+
+    print("Select a column from the following:")
+    [print(f"[{i + 1}] {j.name} ({j.type.__name__})") for i, j in enumerate(columns)]
+
+    while True:
+        choice = input(">").strip()
+        if choice.isdigit():
+            if 0 <= (int(choice) - 1) < len(columns):
+                return columns[int(choice) - 1].name
+
+        print("Invalid option.")
+
+def _get_value(table: type[DB], column: str, operator: str = None):
+    x = input(f"{column} ")
 
 
 def search_values(table: type[DB]) -> None:
@@ -45,7 +63,7 @@ def update_values(table: type[DB]) -> None:
             break
         else:
             continue
-    
+
     col = input("What column do you want to update? : ")
     value = input("What is the new value? : ")
     rows = table.update({col: value}, conditions if conditions else None)
@@ -76,3 +94,8 @@ def delete_values(table: type[DB]) -> None:
                 break
             else:
                 continue
+
+if __name__=="__main__":
+    from app.models.load import initiate, Aircrafts
+    initiate()
+    _get_value(Aircrafts)

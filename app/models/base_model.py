@@ -1,7 +1,7 @@
 from dataclasses import Field
 import sqlite3
-from base.connection import db_connection
-from base.logger import logger
+from app.base.connection import db_connection
+from app.base.logger import logger
 import inspect
 from typing import Any, Type, Iterable
 
@@ -63,10 +63,12 @@ class DB:
 
     def drop_all() -> None:
         with db_connection() as connection:
-            for k, _ in DB.__SUBCLASSES__.items():
-                drop_table = f"DROP TABLE IF EXISTS {k}"
-                logger.info(f"running sql {drop_table}")
-                connection.execute(drop_table)
+            cursor = connection.cursor()
+            cursor.execute("PRAGMA foreign_keys = OFF;")
+            cursor.execute("SELECT name FROM sqlite_schema WHERE type='table';")
+            tables = cursor.fetchall()
+            [cursor.execute(f'DROP TABLE IF EXISTS "{t[0]}" ') for t in tables]
+            connection.commit()
 
     def insert(self) -> None:
         fields = DB.get_class_fields(self.__class__)
