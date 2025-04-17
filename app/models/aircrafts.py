@@ -6,5 +6,4 @@ class Aircrafts(DB, primary_key="registration"):
     registration: str
     aircraft_type: str
     aircraft_category: str
-    age: int
     capacity: int

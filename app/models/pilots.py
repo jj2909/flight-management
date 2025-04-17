@@ -8,5 +8,4 @@ class Pilots(DB, primary_key="pilot_id"):
     last_name: str
     base: int = field(metadata={"foreign_key": {"table": "Airports", "column": "code"}})
     airline: str
-    contact: str
     pilot_id: Optional[int] = None

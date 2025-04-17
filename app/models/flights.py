@@ -6,6 +6,7 @@ from app.models.base_model import DB
 class Flights(DB, primary_key="flight_id"):
     departure_time: str
     arrival_time: str
+    status: str
     pilot_id: int = field(
         metadata={"foreign_key": {"table": "Pilots", "column": "pilot_id"}}
     )

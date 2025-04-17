@@ -3,154 +3,132 @@
         "registration": "OK-TSU",
         "aircraft_type": "Boeing 737-8FZ",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "D-AIEP",
         "aircraft_type": "Airbus A321-271NX",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "A6-EVA",
         "aircraft_type": "Airbus A380-842",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "D-AIUQ",
         "aircraft_type": "Airbus A320-214",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "EI-GXL",
         "aircraft_type": "Boeing 737-8AS",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "G-TESM",
         "aircraft_type": "Diamond DA42 Twin Star",
         "aircraft_category": "General aviation",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "G-AZFM",
         "aircraft_type": "Piper Cherokee Arrow B",
         "aircraft_category": "General aviation",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "C-GCFK",
         "aircraft_type": "De Havilland Canada Dash 8-100",
         "aircraft_category": "Military or government",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "G-RICE",
         "aircraft_type": "Robinson R22 Beta",
         "aircraft_category": "Helicopter",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "F-HOLX",
         "aircraft_type": "Robinson R44 Raven II",
         "aircraft_category": "Helicopter",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "F-HAXE",
         "aircraft_type": "Airbus Helicopters H135",
         "aircraft_category": "Helicopter",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "G-CFYV",
         "aircraft_type": "Alexander Schleicher ASK-21",
         "aircraft_category": "Glider",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "G-CKAN",
         "aircraft_type": "PZL-Bielsko SZD-50-3",
         "aircraft_category": "Glider",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "LX-PCE",
         "aircraft_type": "Pilatus PC-24",
         "aircraft_category": "Business jet",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "CS-LTM",
         "aircraft_type": "Cessna Citation Latitude",
         "aircraft_category": "Business jet",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "G-AKUJ",
         "aircraft_type": "Luscombe 8E Silvaire Deluxe",
         "aircraft_category": "General aviation",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "N786AN",
         "aircraft_type": "Boeing 777-223",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "5Y-KZJ",
         "aircraft_type": "Boeing 787-8 Dreamliner",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "D-ACNN",
         "aircraft_type": "Mitsubishi CRJ-900LR",
         "aircraft_category": "Passenger",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "D-ALFG",
         "aircraft_type": "Boeing 777-F",
         "aircraft_category": "Cargo",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "A6-EFO",
         "aircraft_type": "Boeing 777-F1H",
         "aircraft_category": "Cargo",
-        "age": 22,
         "capacity": 22
     },
     {
         "registration": "D-LZNT",
         "aircraft_type": "Zeppelin LZ N07-101",
         "aircraft_category": "Lighter-than-air",
-        "age": 22,
         "capacity": 22
     }
 ]

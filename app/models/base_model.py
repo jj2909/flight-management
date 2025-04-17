@@ -3,11 +3,13 @@ import sqlite3
 from app.base.connection import db_connection
 from app.base.logger import logger
 import inspect
-from typing import Type, Iterable
+from typing import Optional, Type, Iterable
 from app.base.exceptions import ForeignKeyConstraintError, DuplicatePrimaryKeyError
 
 
 class DB:
+    """Base class with basic CRUD operations for db models using SQLite3."""
+
     __SUBCLASSES__: dict[[str, Type["DB"]]] = {}
 
     __TYPE_MAP: dict[str, str] = {
@@ -23,11 +25,13 @@ class DB:
 
     @staticmethod
     def get_class_fields(cls: Type["DB"]) -> Iterable[Field]:
+        """Returns all dataclass fields for the given db subclass."""
         members = inspect.getmembers(cls)
         return dict(members)["__dataclass_fields__"].values()
 
     @staticmethod
     def get_class_field_type(cls: Type["DB"], field: str) -> type:
+        """Retrieves the type of a specific dataclass field."""
         fields: dict[str, Field] = cls.__dataclass_fields__
         return fields[field].type
 
@@ -73,10 +77,17 @@ class DB:
             cursor.execute("PRAGMA foreign_keys = OFF;")
             cursor.execute("SELECT name FROM sqlite_schema WHERE type='table';")
             tables = cursor.fetchall()
-            [cursor.execute(f'DROP TABLE IF EXISTS "{t[0]}" ') for t in tables]
+            for t in tables:
+                cursor.execute(f'DROP TABLE IF EXISTS "{t[0]}" ')
             connection.commit()
 
     def insert(self) -> None:
+        """
+        Inserts the current object instance into its corresponding table.
+
+        Generates and executes an SQL statement of form:
+        INSERT INTO table (col1, col2, ...) VALUES (?, ?, ...)
+        """
         fields = DB.get_class_fields(self.__class__)
         names = [field.name for field in fields]
         names_key = ",".join(names)
@@ -95,12 +106,12 @@ class DB:
                 connection.commit()
             except sqlite3.IntegrityError as e:
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
-                    raise ForeignKeyConstraintError()
+                    raise ForeignKeyConstraintError(e)
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY":
-                    raise DuplicatePrimaryKeyError()
+                    raise DuplicatePrimaryKeyError(e)
             except Exception as e:
                 print(e)
-                raise Exception()
+                raise
 
     @staticmethod
     def get_foreign_keys(cls: Type["DB"]) -> list[dict]:
@@ -120,12 +131,21 @@ class DB:
 
     @classmethod
     def find_all_with_details(cls) -> list[dict]:
+        """
+        Finds all records with full details using left joins on foreign keys.
 
-        def get_columns_with_alias(table: str, alias: str, connection) -> list[str]:
+        Generates and executes an SQL statement of form:
+        SELECT
+        """
+
+        def get_columns_with_alias(
+            table: str, alias: str, connection, exclude_cols: list[str] = []
+        ) -> list[str]:
             cursor = connection.execute(f"PRAGMA table_info({table})")
             return [
-                f"{alias}.{row[1]} AS {alias.lower()}_{row[1]}"
+                f"{alias}.{row[1]} AS {alias}_{row[1]}"
                 for row in cursor.fetchall()
+                if row[1] not in exclude_cols
             ]
 
         with db_connection() as connection:
@@ -133,23 +153,25 @@ class DB:
                 cls.__name__, cls.__name__, connection
             )
 
-        fk = DB.get_foreign_keys(cls)
-        select_tables = [f"{cls.__name__}.*"]
-        joins = []
-        for key in fk:
-            select_clauses += get_columns_with_alias(
-                key["to_table"], key["alias"], connection
-            )
-            select_tables.append(f"{key['alias']}.*")
-            joins.append(
-                f"LEFT JOIN {key['to_table']} AS {key['alias']} ON {cls.__name__}.{key['from_column']} = {key['alias']}.{key['to_column']}"
-            )
+            fk_mapping = DB.get_foreign_keys(cls)
+            joins = []
 
-        query = (
-            f"SELECT {', '.join(select_clauses)} FROM {cls.__name__} {' '.join(joins)}"
-        )
+            for fk in fk_mapping:
+                alias, from_column, to_table, to_column = (
+                    fk["alias"],
+                    fk["from_column"],
+                    fk["to_table"],
+                    fk["to_column"],
+                )
+                select_clauses += get_columns_with_alias(
+                    to_table, alias, connection, [to_column]
+                )
+                joins.append(
+                    f"LEFT JOIN {to_table} AS {alias} ON {cls.__name__}.{from_column} = {alias}.{to_column}"
+                )
 
-        with db_connection() as connection:
+            query = f"SELECT {', '.join(select_clauses)} FROM {cls.__name__} {' '.join(joins)}"
+
             cursor = connection.cursor()
             logger.info(f"running find_all_with_details query: {query}")
             rows = cursor.execute(query).fetchall()
@@ -165,7 +187,8 @@ class DB:
             rows = cursor.execute(query, ids)
             return [dict(row) for row in rows]
 
-    def _build_condition_clause(conditions: list[dict] | None) -> tuple[str, list]:
+    @staticmethod
+    def _build_condition_clause(conditions: Optional[list[dict]]) -> tuple[str, list]:
         if not conditions:
             return "", []
 
@@ -196,6 +219,10 @@ class DB:
 
     @classmethod
     def find(cls, conditions: list[dict] = None):
+        """
+        Finds all records.
+        """
+
         query = f"SELECT * FROM {cls.__name__}"
         where_clause, values = cls._build_condition_clause(conditions)
 
@@ -225,9 +252,9 @@ class DB:
                 return cursor.rowcount
             except sqlite3.IntegrityError as e:
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
-                    raise ForeignKeyConstraintError()
+                    raise ForeignKeyConstraintError(e)
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY":
-                    raise DuplicatePrimaryKeyError()
+                    raise DuplicatePrimaryKeyError(e)
             except Exception as e:
                 print(e)
                 raise Exception()
@@ -254,9 +281,9 @@ class DB:
                 return cursor.rowcount
             except sqlite3.IntegrityError as e:
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
-                    raise ForeignKeyConstraintError()
+                    raise ForeignKeyConstraintError(e)
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY":
-                    raise DuplicatePrimaryKeyError()
+                    raise DuplicatePrimaryKeyError(e)
             except Exception as e:
                 print(e)
                 raise Exception()
