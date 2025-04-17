@@ -1,4 +1,5 @@
 from time import sleep
+from app.base.exceptions import DuplicatePrimaryKeyError, ForeignKeyConstraintError
 from app.tui.utils import dict_to_table
 from app.models.base_model import DB
 
@@ -73,24 +74,37 @@ def add_values(table: type[DB]) -> None:
     names = ", ".join(names)
 
     while True:
-        print(f"\nColumns: {names}")
-        values = input(
-            f"> Enter the entry you would like to add with values separated by commas: "
-        )
+        print(f"\nColumns: {', '.join(names)}")
+        values = input(f"> Enter the record with values separated by commas: ")
         values = [v.strip() for v in values.split(",")]
-        if len(values) == len(fields):
+
+        if len(values) != len(fields):
+            print(f"ERROR: need {len(fields)} values, got {len(values)}")
+            continue
+
+        try:
             table(*values).insert()
-            print("Successfully added entry")
+            print("Successfully added record")
             sleep(0.8)
             break
-        else:
-            print(f"ERROR: need {len(fields)} values, got {len(values)}")
+        except ForeignKeyConstraintError:
+            fk = table.get_foreign_keys(table)
+            fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
+            print("\nERROR: Failed to add due to related records not existing")
+            print(f"ERROR: Make sure your values exist in {', '.join(set(fk))}")
+            print("ERROR: Or turn off foreign key restrictions in Settings")
+            break
+        except DuplicatePrimaryKeyError:
+            print(f"\nERROR:{table.primary_key} already in use.")
+            break
+        except Exception as e:
+            print(f"\nERROR: Values not added - unexpected error: {e}")
+            break
+
 
 def update_values(table: type[DB]) -> None:
     conditions = []
-    if (
-        input(f"\n> Apply a filter to update? [y]/[n]: ").strip().lower()
-    ) == "y":
+    if (input(f"\n> Apply a filter to update? [y]/[n]: ").strip().lower()) == "y":
         conditions = _get_conditions(table)
         print("Filter applied")
     else:
@@ -99,33 +113,66 @@ def update_values(table: type[DB]) -> None:
     col = _get_column(table, "UPDATE")
     print("What is the new value?")
     value = input(f"> {col} = ")
-    rows = table.update({col: value}, conditions)
-    print(f"Number of rows updated: {rows}")
-    sleep(0.8)
+
+    while True:
+        try:
+            rows = table.update({col: value}, conditions)
+            print(f"Number of rows updated: {rows}")
+            sleep(0.8)
+            break
+        except ForeignKeyConstraintError:
+            fk = table.get_foreign_keys(table)
+            fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
+            print("\nERROR: Failed to add due to related records not existing")
+            print(f"ERROR: Make sure your values exist in {', '.join(set(fk))}")
+            print("ERROR: Or turn off foreign key restrictions in Settings")
+            break
+        except DuplicatePrimaryKeyError:
+            print(f"\nERROR: {table.primary_key} already in use.")
+            break
+        except Exception as e:
+            print(f"\nERROR: Values not added - unexpected error: {e}")
+            break
 
 
 def delete_values(table: type[DB]) -> None:
     while True:
-        to_filter = (
-            input(f"> Apply a filter to delete? [y]/[n]: ").strip().lower()
-        )
+        to_filter = input(f"> Apply a filter to delete? [y]/[n]: ").strip().lower()
 
         if to_filter == "y":
             conditions = _get_conditions(table)
-            rows = table.delete(conditions)
-            print(f"Number of rows deleted {rows}.")
-            sleep(0.8)
-            break
-        if to_filter == "n":
-            if (
-                input(
-                    f"> Delete all records in {table.__name__}? [y]/[n]: "
-                ).lower()
-            ) == "y":
-                print(f"Deleting all records in {table.__name__}...")
-                table.delete()
+            try:
+                rows = table.delete(conditions)
+                print(f"Number of rows deleted {rows}")
                 sleep(0.8)
                 break
+            except ForeignKeyConstraintError:
+                fk = table.get_foreign_keys(table)
+                fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
+                print(
+                    "\nERROR: Failed to delete record(s) due to existing related data"
+                )
+                print(
+                    f"ERROR: Make sure your values do not exist in {", ".join(set(fk))}"
+                )
+                print("ERROR: or turn off foreign key restrictions in Settings")
+                break
+            except Exception as e:
+                print(f"ERROR: Values not deleted - unexpected error: {e}")
+
+        elif to_filter == "n":
+            if (
+                input(f"> Delete all records in {table.__name__}? [y]/[n]: ").lower()
+            ) == "y":
+                try:
+                    table.delete()
+                    print(f"All records from {table.__name__} deleted")
+                    sleep(0.8)
+                except Exception as e:
+                    print(f"ERROR: Values not deleted - unexpected error: {e}")
+                break
+        else:
+            print("ERROR: invalid option")
 
 
 if __name__ == "__main__":

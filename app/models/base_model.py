@@ -4,6 +4,7 @@ from app.base.connection import db_connection
 from app.base.logger import logger
 import inspect
 from typing import Type, Iterable
+from app.base.exceptions import ForeignKeyConstraintError, DuplicatePrimaryKeyError
 
 
 class DB:
@@ -24,7 +25,7 @@ class DB:
     def get_class_fields(cls: Type["DB"]) -> Iterable[Field]:
         members = inspect.getmembers(cls)
         return dict(members)["__dataclass_fields__"].values()
-    
+
     @staticmethod
     def get_class_field_type(cls: Type["DB"], field: str) -> type:
         fields: dict[str, Field] = cls.__dataclass_fields__
@@ -87,8 +88,19 @@ class DB:
         with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"running following insert query {insert_query}")
-            cursor.execute(insert_query, tuple([getattr(self, name) for name in names]))
-            connection.commit()
+            try:
+                cursor.execute(
+                    insert_query, tuple([getattr(self, name) for name in names])
+                )
+                connection.commit()
+            except sqlite3.IntegrityError as e:
+                if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
+                    raise ForeignKeyConstraintError()
+                if e.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY":
+                    raise DuplicatePrimaryKeyError()
+            except Exception as e:
+                print(e)
+                raise Exception()
 
     @staticmethod
     def get_foreign_keys(cls: Type["DB"]) -> list[dict]:
@@ -170,6 +182,7 @@ class DB:
                 )
 
             if operator == "IN":
+                value = [v.strip() for v in value.split(",")]
                 questions = ", ".join(["?"] * len(value))
                 clauses.append(f"{column} IN ({questions})")
                 values.extend(value)
@@ -210,8 +223,14 @@ class DB:
             try:
                 cursor.execute(query, values)
                 return cursor.rowcount
-            except sqlite3.IntegrityError:
-                print("Cannot delete: records have relations.")
+            except sqlite3.IntegrityError as e:
+                if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
+                    raise ForeignKeyConstraintError()
+                if e.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY":
+                    raise DuplicatePrimaryKeyError()
+            except Exception as e:
+                print(e)
+                raise Exception()
 
     @classmethod
     def update(cls, update_data: dict, conditions: list[dict] = None) -> int:
@@ -229,6 +248,15 @@ class DB:
         with db_connection() as connection:
             cursor = connection.cursor()
             logger.info(f"Running UPDATE query: {query} with values {values}")
-            cursor.execute(query, values)
-            connection.commit()
-            return cursor.rowcount
+            try:
+                cursor.execute(query, values)
+                connection.commit()
+                return cursor.rowcount
+            except sqlite3.IntegrityError as e:
+                if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
+                    raise ForeignKeyConstraintError()
+                if e.sqlite_errorname == "SQLITE_CONSTRAINT_PRIMARYKEY":
+                    raise DuplicatePrimaryKeyError()
+            except Exception as e:
+                print(e)
+                raise Exception()
