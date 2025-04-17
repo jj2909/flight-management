@@ -16,9 +16,9 @@ class FlightMangement:
     def show_intro(self):
         print(
             """
-    ------------------------------
-    FLIGHT MANAGEMENT SYSTEM   
-    ------------------------------
+------------------------------
+   FLIGHT MANAGEMENT SYSTEM   
+------------------------------
         """
         )
 
@@ -38,10 +38,10 @@ class FlightMangement:
             if option == "q":
                 sys.exit(0)
             elif option in menu_dict:
-                print(f"> Selected: {menu_dict[option]["name"]}")
+                print(f"Selected: {menu_dict[option]["name"]}")
                 menu_dict[option]["function"]()
             else:
-                print("Invalid option, try again.")
+                print("ERROR: Invalid option")
 
     def main_menu(self) -> None:
         submenu = {
@@ -76,15 +76,15 @@ class FlightMangement:
                 "function": lambda: search_values(table),
             },
             "4": {
-                "name": "Add",
+                "name": "Add record",
                 "function": lambda: add_values(table),
             },
             "5": {
-                "name": "Update",
+                "name": "Update record/s",
                 "function": lambda: update_values(table),
             },
             "6": {
-                "name": "Delete",
+                "name": "Delete record/s",
                 "function": lambda: delete_values(table),
             },
         }
