@@ -3,7 +3,7 @@ import sqlite3
 from app.base.connection import db_connection
 from app.base.logger import logger
 import inspect
-from typing import Any, Type, Iterable
+from typing import Type, Iterable
 
 
 class DB:
