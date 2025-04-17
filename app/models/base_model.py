@@ -24,6 +24,11 @@ class DB:
     def get_class_fields(cls: Type["DB"]) -> Iterable[Field]:
         members = inspect.getmembers(cls)
         return dict(members)["__dataclass_fields__"].values()
+    
+    @staticmethod
+    def get_class_field_type(cls: Type["DB"], field: str) -> type:
+        fields: dict[str, Field] = cls.__dataclass_fields__
+        return fields[field].type
 
     @classmethod
     def intialise_all(cls):

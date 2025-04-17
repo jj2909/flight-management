@@ -27,10 +27,10 @@ class FlightMangement:
             print(f"\n-------- {name} Menu -------- ")
             print("Choose from the following:")
             for k, v in menu_dict.items():
-                print(f"{k}: {v["name"]}")
+                print(f"[{k}] {v["name"]}")
             if name != "Main":
-                print("b: Back")
-            print("q: Quit")
+                print("[b] Back")
+            print("[q] Quit")
 
             option = input("> ").strip().lower()
             if option == "b":

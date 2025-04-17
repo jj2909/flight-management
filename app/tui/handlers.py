@@ -1,3 +1,4 @@
+from time import sleep
 from app.tui.utils import dict_to_table
 from app.models.base_model import DB
 
@@ -6,10 +7,9 @@ def _get_conditions(table: type[DB]) -> list[dict]:
     fields = table.get_class_fields(table)
     names = [field.name for field in fields]
     print(f"Columns available: {names}")
-    col = input("What column do you want to filter by?: ")
+    col = _get_column(table)
     operator = input("On what operator [=, !=, <, >, IN]: ")
-    print(f"{col} {operator} ?")
-    value = input("What value?: ")
+    value = _get_value(table, col, operator)
     return [{"column": col, "operator": operator, "value": value}]
 
 
@@ -17,18 +17,28 @@ def _get_column(table: type[DB]) -> str:
     columns = list(table.get_class_fields(table))
 
     print("Select a column from the following:")
-    [print(f"[{i + 1}] {j.name} ({j.type.__name__})") for i, j in enumerate(columns)]
+    for i, field in enumerate(columns):
+        print(f"[{i + 1}] {field.name} ({field.type.__name__})")
 
     while True:
-        choice = input(">").strip()
-        if choice.isdigit():
-            if 0 <= (int(choice) - 1) < len(columns):
-                return columns[int(choice) - 1].name
+        try:
+            choice = int(input("> "))
+            if 1 <= choice <= len(columns):
+                return columns[choice - 1].name
+            else:
+                print("Invalid option.")
+        except ValueError:
+            print("Invalid type.")
 
-        print("Invalid option.")
 
 def _get_value(table: type[DB], column: str, operator: str = None):
-    x = input(f"{column} ")
+    field_type = table.get_class_field_type(table, column)
+    value = input(f"{column} ({field_type}) {operator} ")
+    try:
+        return field_type(value)
+    except (ValueError, TypeError):
+        print("Invalid type.")
+        return None
 
 
 def search_values(table: type[DB]) -> None:
@@ -48,10 +58,10 @@ def add_values(table: type[DB]) -> None:
     values = [v.strip() for v in values.split(",")]
     table(*values).insert()
     print("> Successfully added entry")
+    sleep(0.8)
 
 
 def update_values(table: type[DB]) -> None:
-
     while True:
         to_filter = (
             input(f"Do you want apply a filter to update? (Y/N): ").strip().upper()
@@ -64,10 +74,11 @@ def update_values(table: type[DB]) -> None:
         else:
             continue
 
-    col = input("What column do you want to update? : ")
+    col = _get_column(table)
     value = input("What is the new value? : ")
     rows = table.update({col: value}, conditions if conditions else None)
     print(f"Number of rows updated: {rows}")
+    sleep(0.8)
 
 
 def delete_values(table: type[DB]) -> None:
@@ -91,11 +102,15 @@ def delete_values(table: type[DB]) -> None:
             )
             if response == "Y":
                 print(f"Deleting all records in {table.__name__}...")
+                table.delete()
+                sleep(0.8)
                 break
             else:
                 continue
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     from app.models.load import initiate, Aircrafts
+
     initiate()
-    _get_value(Aircrafts)
+    _get_value(Aircrafts, "age")
