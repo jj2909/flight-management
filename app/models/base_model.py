@@ -19,6 +19,9 @@ class DB:
         "float": "REAL",
     }
 
+    ON_DELETE = "CASCADE"
+    ON_UPDATE = "CASCADE"
+
     def __init_subclass__(cls, primary_key="id", **kwargs):
         cls.primary_key = primary_key
         DB.__SUBCLASSES__[cls.__name__] = cls
@@ -55,7 +58,7 @@ class DB:
                         )
                     if field.metadata.get("foreign_key"):
                         fk_fields.append(
-                            f'FOREIGN KEY ({field.name}) REFERENCES {field.metadata.get("foreign_key")["table"]}({field.metadata.get("foreign_key")["column"]}) ON DELETE CASCADE'  # TODO: MAKE ON DELETE A SETTING
+                            f'FOREIGN KEY ({field.name}) REFERENCES {field.metadata.get("foreign_key")["table"]}({field.metadata.get("foreign_key")["column"]}) ON DELETE {DB.ON_DELETE} ON UPDATE {DB.ON_UPDATE}'
                         )
 
                 if fk_fields:

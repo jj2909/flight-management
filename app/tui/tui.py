@@ -1,13 +1,16 @@
 from app.models.base_model import DB
 import sys
 from app.tui.utils import dict_to_table
-from app.tui.handlers import search_values, add_values, delete_values, update_values
+from app.tui.handlers import search_values, add_values, delete_values, update_values, set_on_delete, set_logging_setting
+from app.base.logger import logger
 
 
 class FlightMangement:
 
     def __init__(self, tables: list[type[DB]]):
         self.tables = tables
+        self.logger = logger
+        logger.disabled = True
 
     def run(self):
         self.show_intro()
@@ -93,8 +96,8 @@ class FlightMangement:
 
     def settings_menu(self):
         submenu = {
-            "1": {"name": "Setting1", "function": lambda: print("TODO: setting1")},
-            "2": {"name": "Setting2", "function": lambda: print("TODO: setting2")},
+            "1": {"name": "(In development) Set ON DELETE restrictions", "function": lambda: set_on_delete(self.tables)},
+            "2": {"name": "Turn dev logs on/off", "function": lambda: set_logging_setting(logger)},
         }
 
         self._show_menu("Settings", submenu)

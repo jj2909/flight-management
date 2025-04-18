@@ -2,6 +2,7 @@ from time import sleep
 from app.base.exceptions import DuplicatePrimaryKeyError, ForeignKeyConstraintError
 from app.tui.utils import dict_to_table
 from app.models.base_model import DB
+from app.initiate_db import initiate
 
 
 def _get_conditions(table: type[DB]) -> list[dict]:
@@ -37,9 +38,9 @@ def _get_column(table: type[DB], condition: str) -> str:
 
 def _get_value(table: type[DB], column: str, operator: str = None):
     field_type = table.get_class_field_type(table, column)
-    value = input(f"> {column} ({field_type.__name__}) {operator} ")
     while True:
         try:
+            value = input(f"> {column} ({field_type.__name__}) {operator} ")
             return field_type(value)
         except (ValueError, TypeError):
             print("ERROR: Invalid type")
@@ -71,7 +72,6 @@ def search_values(table: type[DB]) -> None:
 def add_values(table: type[DB]) -> None:
     fields = table.get_class_fields(table)
     names = [field.name for field in fields]
-    names = ", ".join(names)
 
     while True:
         print(f"\nColumns: {', '.join(names)}")
@@ -95,7 +95,7 @@ def add_values(table: type[DB]) -> None:
             print("ERROR: Or turn off foreign key restrictions in Settings")
             break
         except DuplicatePrimaryKeyError:
-            print(f"\nERROR:{table.primary_key} already in use.")
+            print(f"\nERROR: {table.primary_key} already in use.")
             break
         except Exception as e:
             print(f"\nERROR: Values not added - unexpected error: {e}")
@@ -173,6 +173,49 @@ def delete_values(table: type[DB]) -> None:
                 break
         else:
             print("ERROR: invalid option")
+
+
+def set_on_delete(tables: list[type[DB]]) -> None:
+        current_setting = tables[0].ON_DELETE
+        constraints = ["CASCADE", "SET NULL", "NO ACTION"]
+        constraints.remove(current_setting)
+
+        print(f"\nON DELETE/UPDATE currently set to: {tables[0].ON_DELETE}")
+        print("Select an ON DELETE/UPDATE behavior for foreign keys (more info in README):")
+        print("WARNING: This will reset the DB, any changes make will be lost")
+        for i, con in enumerate(constraints):
+            print(f"[{i+1}] {con}")
+        print("[b] Back")
+
+        while True:
+            try:
+                choice = input("> ").strip()
+
+                if choice == "b":
+                    return
+
+                choice = int(choice)
+                if 1 <= choice <= len(constraints):
+                    DB.ON_DELETE = constraints[int(choice) - 1]
+                    DB.ON_UPDATE = constraints[int(choice) - 1]
+                    print(f"ON DELETE/UPDATE set to: {constraints[int(choice) - 1]}")
+                    DB.drop_all()
+                    DB.intialise_all()
+                    return
+                else:
+                    print("ERROR: Invalid option")
+            except ValueError:
+                print("ERROR: Invalid option")
+                
+def set_logging_setting(logger) -> None:
+    options = {True: "OFF",
+               False: "ON"}
+
+    print(f"\nDev logs currently set to: {options[logger.disabled]}")
+
+    if input(f"> Do you want to switch dev logs {options[not logger.disabled]}? [y]/[n]: ").lower().strip() == "y":
+        logger.disabled = not logger.disabled
+        print(f"Logging turned {options[logger.disabled]}")
 
 
 if __name__ == "__main__":
