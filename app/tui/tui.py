@@ -1,7 +1,7 @@
 from app.models.base_model import DB
 import sys
 from app.tui.utils import dict_to_table
-from app.tui.handlers import search_values, add_values, delete_values, update_values, set_on_delete, set_logging_setting
+from app.tui.handlers import search_values, add_values, delete_values, update_values, set_logging_setting, group_by
 from app.base.logger import logger
 
 
@@ -79,14 +79,18 @@ class FlightMangement:
                 "function": lambda: search_values(table),
             },
             "4": {
+                "name": "Group by",
+                "function": lambda: group_by(table),
+            },
+            "5": {
                 "name": "Add record",
                 "function": lambda: add_values(table),
             },
-            "5": {
+            "6": {
                 "name": "Update record/s",
                 "function": lambda: update_values(table),
             },
-            "6": {
+            "7": {
                 "name": "Delete record/s",
                 "function": lambda: delete_values(table),
             },
@@ -96,7 +100,7 @@ class FlightMangement:
 
     def settings_menu(self):
         submenu = {
-            "1": {"name": "(In development) Set ON DELETE restrictions", "function": lambda: set_on_delete(self.tables)},
+            "1": {"name": "(In development) Set ON DELETE restrictions", "function": lambda: print("Not ready yet :(")},
             "2": {"name": "Turn dev logs on/off", "function": lambda: set_logging_setting(logger)},
         }
 

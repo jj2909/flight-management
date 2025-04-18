@@ -163,6 +163,10 @@ def delete_values(table: type[DB]) -> None:
             print(f"ERROR: Values not deleted - unexpected error: {e}")
             break
 
+def group_by(table: type[DB]) -> None:
+    group_on = _get_column(table, "GROUP by")
+    agg_on = _get_column(table, "AGGREGATE by")
+    dict_to_table(table.group_by(group_on, agg_on))
 
 def set_on_delete(tables: list[type[DB]]) -> None:
         current_setting = tables[0].ON_DELETE

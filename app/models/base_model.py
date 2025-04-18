@@ -283,7 +283,17 @@ class DB:
                 raise Exception()
 
     @classmethod
-    def group_by(cls, column: str):
-        """
-        SELECT COUNT(1), AIRCRAFT_TYPE FROM AIRCRAFT GROUP BY AIRCRAFT_TYPE
-        """
+    def group_by(cls, group_on: str, agg_on: str):        
+        col_type = cls.get_class_field_type(cls, agg_on)
+        if col_type in [int, float]:
+            agg = f"SUM({agg_on})"
+        else:
+            agg = f"COUNT({agg_on})"
+
+        query = f"SELECT {group_on}, {agg} FROM {cls.__name__} GROUP BY {group_on}"
+
+        with db_connection() as connection:
+            cursor = connection.cursor()
+            logger.info(f"Running SELECT query: {query}")
+            rows = cursor.execute(query)
+            return [dict(row) for row in rows]
