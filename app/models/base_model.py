@@ -85,12 +85,7 @@ class DB:
             connection.commit()
 
     def insert(self) -> None:
-        """
-        Inserts the current object instance into its corresponding table.
-
-        Generates and executes an SQL statement of form:
-        INSERT INTO table (col1, col2, ...) VALUES (?, ?, ...)
-        """
+        """Inserts the current object instance into its corresponding table."""
         fields = DB.get_class_fields(self.__class__)
         names = [field.name for field in fields]
         names_key = ",".join(names)
@@ -137,9 +132,6 @@ class DB:
     def find_all_with_details(cls) -> list[dict]:
         """
         Finds all records with full details using left joins on foreign keys.
-
-        Generates and executes an SQL statement of form:
-        SELECT
         """
 
         def get_columns_with_alias(
@@ -213,10 +205,7 @@ class DB:
 
     @classmethod
     def find(cls, conditions: list[dict] = None):
-        """
-        Finds all records.
-        """
-
+        """Finds all records."""
         query = f"SELECT * FROM {cls.__name__}"
         where_clause, values = cls._build_condition_clause(conditions)
 
@@ -232,6 +221,7 @@ class DB:
 
     @classmethod
     def delete(cls, conditions: list[dict] = None) -> int:
+        """Deletes records based on conditions."""
         query = f"DELETE FROM {cls.__name__}"
         where_clause, values = cls._build_condition_clause(conditions)
 
@@ -255,7 +245,7 @@ class DB:
 
     @classmethod
     def update(cls, update_data: dict, conditions: list[dict] = None) -> int:
-
+        """Updates records based on conditions."""
         questions = ", ".join([f"{col} = ?" for col in update_data])
         values = list(update_data.values())
 
@@ -283,7 +273,8 @@ class DB:
                 raise Exception()
 
     @classmethod
-    def group_by(cls, group_on: str, agg_on: str):        
+    def group_by(cls, group_on: str, agg_on: str):
+        """Groups table on group_on column by the agg_on column. Agg (SUM/COUNT) depends on the agg_on type."""
         col_type = cls.get_class_field_type(cls, agg_on)
         if col_type in [int, float]:
             agg = f"SUM({agg_on})"

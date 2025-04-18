@@ -44,6 +44,32 @@ This contains all the operations you can perform on the tables:
 
 | Option    | Description |
 | -------- | ------- |
-| [1] Set ON DELETE restrictions | As these tables use foreign keys, you can choose what behaviour to have when you try to delete a record. <br> The default is: CASCADE <br> **CASCADE**: if a parent record is delete, any child records will also get deleted. <br> **SET NULL**: if a parent record gets deleted, the children record will show as null. <br> **NO ACTION**: a parent record can't be deleted if still has children records.|
+| [1] Set ON DELETE restrictions* | As these tables use foreign keys, you can choose what behaviour to have when you try to delete a record. <br> The default is: CASCADE <br> **CASCADE**: if a parent record is delete, any child records will also get deleted. <br> **SET NULL**: if a parent record gets deleted, the children record will show as null. <br> **NO ACTION**: a parent record can't be deleted if still has children records.|
 |[2] Turn dev logs on/off | This sets whether logging is shown or not. <br> The default is: OFF |
 
+<br><br>
+
+*'Set ON DELETE restrictions' is still in development and not yet implemented. If you want to play around with the db without the foreign key contraints:
+1. Uncomment line 8 in main.py 
+```
+    def main():
+        tables = [Aircrafts, Airports, Pilots, Flights]
+        # initiate()
+        FlightMangement(tables).run()
+```
+&#8595;
+```
+    def main():
+        tables = [Aircrafts, Airports, Pilots, Flights]
+        initiate()
+        FlightMangement(tables).run()
+```
+
+2. Set the ON_DELETE and ON_UPDATE variables on line 22 and 23 in app/models/base_model.py to CASCADE/SET NULL
+
+```
+    ON_DELETE = "CASCADE"
+    ON_UPDATE = "CASCADE"
+```
+
+3. Run `python3 main.py`
