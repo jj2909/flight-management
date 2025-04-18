@@ -1,6 +1,12 @@
 # flight-management
 
+A simple TUI to execute SQLite3 CRUD operations on a flight management database.
 
+The database contains sample data with tables:
+- Flights
+- Airports
+- Aircrafts
+- Pilots
 
 ## Requirements
 
