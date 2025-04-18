@@ -5,7 +5,7 @@ from app.tui.tui import FlightMangement
 
 def main():
     tables = [Aircrafts, Airports, Pilots, Flights]
-    initiate()
+    # initiate()
     FlightMangement(tables).run()
 
 
