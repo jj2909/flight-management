@@ -92,7 +92,6 @@ def add_values(table: type[DB]) -> None:
             fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
             print("\nERROR: Failed to add due to related records not existing")
             print(f"ERROR: Make sure your values exist in {', '.join(set(fk))}")
-            print("ERROR: Or turn off foreign key restrictions in Settings")
             break
         except DuplicatePrimaryKeyError:
             print(f"\nERROR: {table.primary_key} already in use.")
@@ -125,7 +124,6 @@ def update_values(table: type[DB]) -> None:
             fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
             print("\nERROR: Failed to add due to related records not existing")
             print(f"ERROR: Make sure your values exist in {', '.join(set(fk))}")
-            print("ERROR: Or turn off foreign key restrictions in Settings")
             break
         except DuplicatePrimaryKeyError:
             print(f"\nERROR: {table.primary_key} already in use.")
@@ -137,42 +135,33 @@ def update_values(table: type[DB]) -> None:
 
 def delete_values(table: type[DB]) -> None:
     while True:
-        to_filter = input(f"> Apply a filter to delete? [y]/[n]: ").strip().lower()
-
-        if to_filter == "y":
-            conditions = _get_conditions(table)
-            try:
+        to_filter = input(f"> Apply a filter to delete? [y]/[n]: ").strip().lower() 
+        try:
+            if to_filter == "y":
+                conditions = _get_conditions(table)
                 rows = table.delete(conditions)
                 print(f"Number of rows deleted {rows}")
                 sleep(0.8)
                 break
-            except ForeignKeyConstraintError:
-                fk = table.get_foreign_keys(table)
-                fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
-                print(
-                    "\nERROR: Failed to delete record(s) due to existing related data"
-                )
-                print(
-                    f"ERROR: Make sure your values do not exist in {", ".join(set(fk))}"
-                )
-                print("ERROR: or turn off foreign key restrictions in Settings")
-                break
-            except Exception as e:
-                print(f"ERROR: Values not deleted - unexpected error: {e}")
-
-        elif to_filter == "n":
-            if (
-                input(f"> Delete all records in {table.__name__}? [y]/[n]: ").lower()
-            ) == "y":
-                try:
+        
+            elif to_filter == "n":
+                if (
+                    input(f"> Delete all records in {table.__name__}? [y]/[n]: ").lower()
+                ) == "y":
                     table.delete()
                     print(f"All records from {table.__name__} deleted")
                     sleep(0.8)
-                except Exception as e:
-                    print(f"ERROR: Values not deleted - unexpected error: {e}")
+                    break
+        except ForeignKeyConstraintError:
+                fk = table.get_foreign_keys(table)
+                fk = [f"{key['to_table']}({key['to_column']})" for key in fk]
+                print(
+                    "\nERROR: Failed to delete record(s) due to existing child data"
+                )
                 break
-        else:
-            print("ERROR: invalid option")
+        except Exception as e:
+            print(f"ERROR: Values not deleted - unexpected error: {e}")
+            break
 
 
 def set_on_delete(tables: list[type[DB]]) -> None:

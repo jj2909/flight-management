@@ -19,8 +19,8 @@ class DB:
         "float": "REAL",
     }
 
-    ON_DELETE = "CASCADE"
-    ON_UPDATE = "CASCADE"
+    ON_DELETE = "NO ACTION"
+    ON_UPDATE = "NO ACTION"
 
     def __init_subclass__(cls, primary_key="id", **kwargs):
         cls.primary_key = primary_key
@@ -102,11 +102,11 @@ class DB:
         with db_connection() as connection:
             cursor = connection.cursor()
             values = tuple([getattr(self, name) for name in names])
-            logger.info(f"running following insert query: {insert_query} with values: {values}")
+            logger.info(
+                f"running following insert query: {insert_query} with values: {values}"
+            )
             try:
-                cursor.execute(
-                    insert_query, values
-                )
+                cursor.execute(insert_query, values)
                 connection.commit()
             except sqlite3.IntegrityError as e:
                 if e.sqlite_errorname == "SQLITE_CONSTRAINT_FOREIGNKEY":
@@ -179,16 +179,6 @@ class DB:
             cursor = connection.cursor()
             logger.info(f"running find_all_with_details query: {query}")
             rows = cursor.execute(query).fetchall()
-            return [dict(row) for row in rows]
-
-    @classmethod
-    def find_by_id(cls, ids: list[int], key: str = None):
-        questions = ", ".join(["?"] * len(ids))
-        query = f"SELECT * FROM {cls.__name__} WHERE {key if key else cls.primary_key} IN ({questions})"
-        with db_connection() as connection:
-            cursor = connection.cursor()
-            logger.info(f"running find_by_id query: {query} with ids {ids}")
-            rows = cursor.execute(query, ids)
             return [dict(row) for row in rows]
 
     @staticmethod
@@ -291,3 +281,9 @@ class DB:
             except Exception as e:
                 print(e)
                 raise Exception()
+
+    @classmethod
+    def group_by(cls, column: str):
+        """
+        SELECT COUNT(1), AIRCRAFT_TYPE FROM AIRCRAFT GROUP BY AIRCRAFT_TYPE
+        """
