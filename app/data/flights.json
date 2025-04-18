@@ -1,47 +1,119 @@
 [
     {
-        "departure_time": "",
-        "arrival_time": "",
-        "status": "",
+        "departure_time": "2025-04-18 06:15:00",
+        "arrival_time": "2025-04-18 08:45:00",
+        "status": "On Time'",
         "pilot_id": 1,
         "departure_id": "DEN",
         "destination_id": "BKK",
         "aircraft_id": "OK-TSU"
     },
     {
-        "departure_time": "",
-        "arrival_time": "",
-        "status": "",
+        "departure_time": "2025-04-18 09:30:00",
+        "arrival_time": "2025-04-18 11:55:00",
+        "status": "Delayed",
         "pilot_id": 2,
         "departure_id": "MCO",
         "destination_id": "YEG",
-        "aircraft_id": "F-HOLX"
+        "aircraft_id": "D-AIUQ"
     },
     {
-        "departure_time": "",
-        "arrival_time": "",
-        "status": "",
+        "departure_time": "2025-04-18 12:10:00",
+        "arrival_time": "2025-04-18 14:30:00",
+        "status": "On Time'",
         "pilot_id": 5,
         "departure_id": "DEN",
         "destination_id": "BOG",
-        "aircraft_id": "EI-GXL"
+        "aircraft_id": "C-GCFK"
     },
     {
-        "departure_time": "",
-        "arrival_time": "",
-        "status": "",
+        "departure_time": "2025-04-18 15:00:00",
+        "arrival_time": "2025-04-18 17:40:00",
+        "status": "Cancelled",
         "pilot_id": 4,
         "departure_id": "TFS",
         "destination_id": "AMS",
         "aircraft_id": "G-AZFM"
     },
     {
-        "departure_time": "",
-        "arrival_time": "",
-        "status": "",
+        "departure_time": "2025-04-18 18:25:00",
+        "arrival_time": "2025-04-18 20:55:00",
+        "status": "On Time",
         "pilot_id": 3,
         "departure_id": "IST",
         "destination_id": "TFS",
         "aircraft_id": "C-GCFK"
+    },
+    {
+        "departure_time": "2025-04-18 21:15:00",
+        "arrival_time": "2025-04-18 23:50:00",
+        "status": "Delayed",
+        "pilot_id": 6,
+        "departure_id": "MCO",
+        "destination_id": "BOG",
+        "aircraft_id": "G-RICE"
+    },
+    {
+        "departure_time": "2025-04-19 00:30:00",
+        "arrival_time": "2025-04-19 03:00:00",
+        "status": "On Time",
+        "pilot_id": 7,
+        "departure_id": "TFS",
+        "destination_id": "BKK",
+        "aircraft_id": "G-CFYV"
+    },
+    {
+        "departure_time": "2025-04-19 04:45:00",
+        "arrival_time": "2025-04-19 06:55:00",
+        "status": "On Time",
+        "pilot_id": 7,
+        "departure_id": "BOG",
+        "destination_id": "MCO",
+        "aircraft_id": "CS-LTM"
+    },
+    {
+        "departure_time": "2025-04-19 07:20:00",
+        "arrival_time": "2025-04-19 10:10:00",
+        "status": "Delayed",
+        "pilot_id": 2,
+        "departure_id": "YEG",
+        "destination_id": "AMS",
+        "aircraft_id": "D-ACNN"
+    },
+    {
+        "departure_time": "2025-04-19 10:50:00",
+        "arrival_time": "2025-04-19 13:25:00",
+        "status": "Cancelled",
+        "pilot_id": 10,
+        "departure_id": "PKX",
+        "destination_id": "CGK",
+        "aircraft_id": "N786AN"
+    },
+    {
+        "departure_time": "2025-04-19 14:15:00",
+        "arrival_time": "2025-04-19 16:40:00",
+        "status": "On Time",
+        "pilot_id": 11,
+        "departure_id": "CGK",
+        "destination_id": "PKX",
+        "aircraft_id": "N786AN"
+    },
+    {
+        "departure_time": "2025-04-19 17:30:00",
+        "arrival_time": "2025-04-19 20:00:00",
+        "status": "Delayed",
+        "pilot_id": 11,
+        "departure_id": "PKX",
+        "destination_id": "SIN",
+        "aircraft_id": "D-ALFG"
+    },
+    {
+        "departure_time": "2025-04-19 21:00:00",
+        "arrival_time": "2025-04-19 23:20:00",
+        "status": "On Time",
+        "pilot_id": 2,
+        "departure_id": "MCO",
+        "destination_id": "BOG",
+        "aircraft_id": "A6-EFO"
     }
 ]

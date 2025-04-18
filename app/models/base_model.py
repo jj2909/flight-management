@@ -101,10 +101,11 @@ class DB:
 
         with db_connection() as connection:
             cursor = connection.cursor()
-            logger.info(f"running following insert query {insert_query}")
+            values = tuple([getattr(self, name) for name in names])
+            logger.info(f"running following insert query: {insert_query} with values: {values}")
             try:
                 cursor.execute(
-                    insert_query, tuple([getattr(self, name) for name in names])
+                    insert_query, values
                 )
                 connection.commit()
             except sqlite3.IntegrityError as e:

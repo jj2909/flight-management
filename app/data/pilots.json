@@ -46,6 +46,30 @@
         "last_name": "Brennan",
         "base": "BKK",
         "airline": "EVA Air"
+    },
+    {
+        "first_name": "Marlin",
+        "last_name": "Keeleigh",
+        "base": "BKK",
+        "airline": "Singapore Airlines"
+    },
+    {
+        "first_name": "Iggy",
+        "last_name": "Alexina",
+        "base": "TFS",
+        "airline": "Emirates"
+    },
+    {
+        "first_name": "Peggie",
+        "last_name": "Israel",
+        "base": "IST",
+        "airline": "Swiss International Air Lines"
+    },
+    {
+        "first_name": "Marge",
+        "last_name": "Darrin",
+        "base": "IST",
+        "airline": "Air France"
     }
 
 ]
